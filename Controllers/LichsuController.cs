@@ -15,9 +15,9 @@ namespace Quanlyversion.Controllers
         }
         public async Task<IActionResult> Lichsu()
         {
-            ViewBag.parentPage = "Thống kê lịch sử";
-            ViewBag.currentPage = "Lịch sử chi tiết";
-            var list = await _context.Lichsus.OrderByDescending(x=>x.Thoigian).ToListAsync();
+            ViewBag.parentPage = "Trang chủ";
+            ViewBag.currentPage = "Lịch sử hoạt động";
+            var list = await _context.Lichsus.OrderBy(x=>x.Thoigian).ToListAsync();
             return View(list);
         }
     }
