@@ -1,0 +1,601 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var hoten = HttpContextAccessor.HttpContext.Session.GetString("username");
+    var role = HttpContextAccessor.HttpContext.Session.GetString("userrole");
+}
+
+@model IEnumerable<Quanlyversion.Models.Software>
+
+<style>
+    table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td {
+        border-bottom-width: 0;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    #modalSuathongtinphanmem .modal-dialog {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+<div class="modal-header" style="background:#F5F5F5">
+    <h4 class="modal-title" style="font-size:medium">
+        <i style="color:orange" class="fa fa-folder-open fa-fw" aria-hidden="true"></i>
+        <span class="modal-title-content">???</span>
+    </h4>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <table id="example1" class="table table-hover table-responsive-lg">
+        <thead>
+            <tr style="font-size:smaller; text-align:center">
+                <th>
+                    Station
+                </th>
+                <th>
+                    Tên phần mềm
+                </th>
+                <th>
+                    Version
+                </th>
+                <th hidden>
+                    Điểm thay đổi
+                </th>
+                <th hidden>
+                    Ngày áp dụng
+                </th>
+                <th hidden>
+                    Ngày cài đặt
+                </th>
+                <th hidden>
+                    Người cài đặt
+                </th>
+                <th hidden>
+                    Số lượng Jig cài đặt
+                </th>
+                <th hidden>
+                    Người xác nhận
+                </th>
+                <th>
+                    Trạng thái
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="xemChiTiet" data-model="@item.Model.Name.ToString()"
+                data-name="@item.Name"
+                data-congdoan="@item.CongDoan"
+                data-version="@item.Version"
+                data-diemthaydoi="@item.DiemThayDoi"
+                data-ngayapdung="@item.NgayApDung"
+                data-ngaycaidat="@item.NgayCaiDat"
+                data-nguoicaidat="@item.NguoiCaiDat"
+                data-soluongjigcaidat="@item.SoLuongJigCaiDat"
+                data-nguoixacnhan="@item.NguoiXacNhan"
+                data-trangthaiapdung="@item.TrangThaiApDung"
+                data-ngaytailen="@item.TimeCreated"
+                data-nguoitailen="@item.CreatedBy"
+                data-path="@item.Path">
+                    <td style="text-align:center">
+                        @Html.DisplayFor(modelItem => item.CongDoan)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="text-align:center">
+                        @Html.DisplayFor(modelItem => item.Version)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.DiemThayDoi)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.NgayApDung)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.NgayCaiDat)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.NguoiCaiDat)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.SoLuongJigCaiDat)
+                    </td>
+                    <td hidden>
+                        @Html.DisplayFor(modelItem => item.NguoiXacNhan)
+                    </td>
+                    <td style="text-align:center">
+                        @{
+                            if (item.TrangThaiApDung == true)
+                            {
+                                <span class="badge badge-success">Đang áp dụng</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Không áp dung</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group btn-block">
+                            <button type="button" class="btn bg-purple btnDownload" style="font-size:small"
+                                data-id="@item.Id"
+                                data-name="@item.Name"
+                                data-congdoan="@item.CongDoan"
+                                data-version="@item.Version"
+                                data-diemthaydoi="@item.DiemThayDoi"
+                                data-ngayapdung="@item.NgayApDung"
+                                data-ngaycaidat="@item.NgayCaiDat"
+                                data-nguoicaidat="@item.NguoiCaiDat"
+                                data-soluongjigcaidat="@item.SoLuongJigCaiDat"
+                                data-nguoixacnhan="@item.NguoiXacNhan"
+                                data-trangthaiapdung="@item.TrangThaiApDung"
+                                data-ngaytailen="@item.TimeCreated"
+                                data-nguoitailen="@item.CreatedBy"
+                                data-path="@item.Path">
+                                <i class="fa fa-download fa-fw"></i> Download
+                            </button>
+                            <button type="button" class="btn btn-default btnEdit" style="font-size:small" data-id="@item.Id">
+                                <i class="fa fa-pen fa-fw"></i>
+                            </button>
+                            <button type="button" class="btn btn-default btnDelete" style="font-size:small" data-id="@item.Id">
+                                <i class="fa fa-trash fa-fw"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<br />
+<div class="modal fade " id="modalSuathongtinphanmem">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header " style="background:#F5F5F5">
+                <h4 class="modal-title">
+                    <i class="fas fa-pen fa-fw"> </i>
+                    Sửa thông tin phần mềm
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modelContent_Suathongtinphanmem">
+                    <div class="overlay">
+                        <i class="fas fa-2x fa-sync fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*Scripts tải phần mềm*@
+<script>
+    $(document).ready(function () {
+        //Get password:
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data);
+                        } else {
+                            reject(response.message);
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        //Download file
+        function downloadFile(filePath) {
+            $.ajax({
+                type: "GET",
+                url: "/Home/DownloadFile?filename=" + encodeURIComponent(filePath),
+                xhrFields: {
+                    responseType: 'blob' // Đặt kiểu dữ liệu của phản hồi thành blob
+                },
+                success: function (data) {
+                    var url = window.URL.createObjectURL(data);
+                    // Tạo một thẻ a ẩn để tải file
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = filePath; // Tên file khi tải về
+                    // Thêm thẻ a vào body và kích hoạt sự kiện click để tải file
+                    document.body.appendChild(a);
+                    a.click();
+                    // Xóa đường dẫn URL sau khi đã tải xong
+                    window.URL.revokeObjectURL(url);
+                    Swal.fire(
+                        'Thành công',
+                        'Tập tin đang được tải về...',
+                        'success'
+                    )
+                },
+                error: function () {
+                    Swal.fire(
+                        'Thất bại',
+                        'Không tìm thấy tập tin ',
+                        'error'
+                    )
+                }
+            });
+        }
+        //Button Download
+        $('.btnDownload').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var id = $(this).data('id');
+            var name = $(this).data('name');
+            var path = $(this).data('path');
+            getPassword('edit').then(function (password) {
+                console.log("Mật khẩu: " + password);
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: true
+                })
+                swalWithBootstrapButtons.fire({
+                    title: 'Nhập mật khẩu để tiếp tục',
+                    input: 'password',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Huỷ bỏ',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var matkhau = result.value;
+                        if (matkhau == password) {
+                            swalWithBootstrapButtons.fire({
+                                title: path,
+                                icon: 'info',
+                                showCancelButton: true,
+                                confirmButtonText: '<i class="fa fa-download fa-fw"></i> Tải phần mềm',
+                                cancelButtonText: 'Huỷ bỏ',
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    downloadFile(path);
+                                } else if (
+                                    result.dismiss === Swal.DismissReason.cancel
+                                ) {
+                                    swalWithBootstrapButtons.fire(
+                                        'Đã huỷ',
+                                        'Thao tác đã được huỷ bỏ!',
+                                        'error'
+                                    )
+                                }
+                            })
+                        } else {
+                            swalWithBootstrapButtons.fire(
+                                'Sai mật khẩu',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Đã huỷ',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                })
+            })
+        });
+    });
+</script>
+
+@*Scripts xem chi tiết phần mềm*@
+<script>
+    $('.xemChiTiet').on('click', function () {
+        var model = $(this).data('model');
+        var name = $(this).data('name');
+        var congdoan = $(this).data('congdoan');
+        var version = $(this).data('version');
+        var diemthaydoi = $(this).data('diemthaydoi');
+        var ngayapdung = $(this).data('ngayapdung');
+        var ngaycaidat = $(this).data('ngaycaidat');
+        var nguoicaidat = $(this).data('nguoicaidat');
+        var soluongjigcaidat = $(this).data('soluongjigcaidat');
+        var nguoixacnhan = $(this).data('nguoixacnhan');
+        var trangthai = $(this).data('trangthaiapdung');
+        var ngaytailen = $(this).data('ngaytailen');
+        var nguoitailen = $(this).data('nguoitailen');
+        var path = $(this).data('path');
+
+        if (trangthai == "True") {
+            var trangthaiapdung = '<span class="badge badge-success">Đang áp dụng</span>'
+        }
+        else {
+            var trangthaiapdung = '<span class="badge badge-danger">Không áp dụng</span>'
+        }
+        Swal.fire({
+            title: model + ' : ' + name,
+            icon: 'info',
+            width: 'auto',
+            showCancelButton: false,
+            showConfirmButton: true,
+            html:
+                '<div style="overflow:hidden" >' +
+                '<div class="row">' +
+                '<div class="col-md-12">' +
+                '<table class="table table-striped  ">' +
+                '<tr><td>File:</td><td>' + path + '</td></tr>' +
+                '<tr><td>Điểm thay đổi:</td><td>' + diemthaydoi + '</td></tr>' +
+                '</table>' +
+                '</div>' +
+                '<div class="col-md-6">' +
+                '<table class="table table-striped   ">' +
+                '<tr><td>Công đoạn:</td><td>' + congdoan + '</td></tr>' +
+                '<tr><td>Version:</td><td>' + version + '</td></tr>' +
+                '<tr><td>Ngày áp dụng:</td><td>' + ngayapdung + '</td></tr>' +
+                '<tr><td>Ngày cài đặt:</td><td>' + ngaycaidat + '</td></tr>' +
+                '<tr><td>Người cài đặt:</td><td>' + nguoicaidat + '</td></tr>' +
+                '</table>' +
+                '</div>' +
+                '<div class="col-md-6">' +
+                '<table  class="table table-striped   ">' +
+                '<tr><td>Trạng thái:</td><td>' + trangthaiapdung + '</td></tr>' +
+                '<tr><td>SL Jig cài đặt:</td><td>' + soluongjigcaidat + '</td></tr>' +
+                '<tr><td>Người xác nhận:</td><td>' + nguoixacnhan + '</td></tr>' +
+                '<tr><td>Ngày cập nhật:</td><td>' + ngaytailen + '</td></tr>' +
+                '<tr><td>Người cập nhật:</td><td>' + nguoitailen + '</td></tr>' +
+                '</table>' +
+                '</div>' +
+                '</div>' +
+                '</div>',
+        })
+    });
+</script>
+
+@*Scripts load Datatable*@
+<script>
+    $(document).ready(function () {
+        $("#example1").DataTable({
+            "pageLength": 5,
+            language: {
+                processing: "Đang tải dữ liệu...",
+                search: "Tìm kiếm",
+                lengthMenu: "Điều chỉnh số lượng bản ghi trên 1 trang _MENU_ ",
+                info: "Bản ghi từ _START_ đến _END_ - Tổng số _TOTAL_ bản ghi",
+                infoEmpty: "Không có dữ liệu",
+                infoFiltered: "(Trong tổng số _MAX_ bản ghi)",
+                loadingRecords: "",
+                zeroRecords: "Không tìm thấy bản ghi phù hợp",
+                emptyTable: "Không có dữ liệu",
+                paginate: {
+                    first: "Trang đầu",
+                    previous: "Trang trước",
+                    next: "Trang sau",
+                    last: "Trang cuối"
+                },
+                aria: {
+                    sortAscending: ": Đang sắp xếp theo column",
+                    sortDescending: ": Đang sắp xếp theo column",
+                }
+            },
+            "responsive": true, "lengthChange": false, "autoWidth": false,
+            "buttons": ["copy", "excel", "print"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>
+
+<script>
+    $('.btnDelete').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var idStr = $(this).data('id');
+        var id = parseInt(idStr);
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data);
+                        } else {
+                            reject(response.message);
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        getPassword('edit').then(function (password) {
+            console.log("Mật khẩu: " + password);
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: true
+            })
+            swalWithBootstrapButtons.fire({
+                title: 'Nhập mật khẩu để tiếp tục',
+                input: 'password',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Huỷ bỏ',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var matkhau = result.value;
+                    if (matkhau == password) {
+                        const swalWithBootstrapButtons = Swal.mixin({
+                            customClass: {
+                                confirmButton: 'btn btn-danger',
+                                cancelButton: 'btn btn-success'
+                            },
+                            buttonsStyling: true
+                        })
+                        swalWithBootstrapButtons.fire({
+                            title: 'Xoá phần mềm?',
+                            text: 'Phần mềm sẽ bị xoá vĩnh viễn',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Xác nhận xoá',
+                            cancelButtonText: 'Huỷ bỏ',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "/Home/DeleteSoft/" + id,
+                                    type: "DELETE",
+                                    success: function (response) {
+                                        console.log(response.data)
+                                        Swal.fire(
+                                            'Thành công',
+                                            'Bạn vừa xoá phần mềm thành công',
+                                            'success'
+                                        ).then(function () {
+                                            window.location.reload();
+                                        });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        alert("Error: " + error);
+                                    }
+                                });
+                            } else if (
+                                result.dismiss === Swal.DismissReason.cancel
+                            ) {
+                                swalWithBootstrapButtons.fire(
+                                    'Đã huỷ',
+                                    'Thao tác đã được huỷ bỏ!',
+                                    'error'
+                                )
+                            }
+                        })
+                    } else {
+                        swalWithBootstrapButtons.fire(
+                            'Sai mật khẩu',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                } else if (
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    swalWithBootstrapButtons.fire(
+                        'Đã huỷ',
+                        'Thao tác đã được huỷ bỏ!',
+                        'error'
+                    )
+                }
+            })
+        })
+    });
+</script>
+
+
+@*Phần Scripts hiện Modal sửa thông tin phần mềm:*@
+<script>
+    $('.btnEdit').on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data);
+                        } else {
+                            reject(response.message);
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        var idStr = $(this).data('id');
+        var id = parseInt(idStr);
+
+        getPassword('edit').then(function (password) {
+            console.log("Mật khẩu: " + password);
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: true
+            })
+            swalWithBootstrapButtons.fire({
+                title: 'Nhập mật khẩu để tiếp tục',
+                input: 'password',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Huỷ bỏ',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var matkhau = result.value;
+                    if (matkhau == password) {
+                        $.ajax({
+                            url: "/Home/GetInfoIdSoft",
+                            type: "GET",
+                            data: { softId: id },
+                            success: function (result) {
+                                $("#modelContent_Suathongtinphanmem").html(result);
+                                $("#modalSuathongtinphanmem").modal("show");
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire(
+                                    'Không tải được dữ liệu Model',
+                                    error,
+                                    'error'
+                                )
+                            }
+                        });
+                    } else {
+                        swalWithBootstrapButtons.fire(
+                            'Sai mật khẩu',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                } else if (
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    swalWithBootstrapButtons.fire(
+                        'Đã huỷ',
+                        'Thao tác đã được huỷ bỏ!',
+                        'error'
+                    )
+                }
+            })
+        })
+    });
+</script>

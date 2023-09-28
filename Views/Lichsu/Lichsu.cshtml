@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Quanlyversion.Models.Lichsu>
+
+@{
+    ViewData["Active"] = "2";
+    ViewData["Title"] = "Lịch sử";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .badge {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        width: 100%; /* Đảm bảo badge chiếm toàn bộ chiều rộng của ô */
+    }
+</style>
+
+
+<div class="card card-secondary" >
+    <div class="card-header" >
+        <h3 class="card-title">
+            <i class="fa fa-history fa-fw" aria-hidden="true"></i>
+            Hoạt động gần đây
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="banglichsu" class="table table-bordered table-hover table-responsive-lg" >
+            <thead>
+                <tr style="font-size:small;text-align:center">
+                    <th class="col-sm-3">
+                        Người thao tác
+                    </th>
+                    <th>
+                        Loại
+                    </th>
+                    <th>
+                        Hành động
+                    </th>
+                    <th class="col-sm-3">
+                        Thời gian
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr style="font-size:small">
+                        <td style=" vertical-align:middle;text-align:center">
+                            @Html.DisplayFor(modelItem => item.Ten)
+                        </td>
+                        <td style=" vertical-align:middle;text-align:center" >
+                            @{
+                                switch (item.Type)
+                                {
+                                    case "Login":
+                                                <span class="badge badge-info float-right">@item.Type</span>
+                                        break;
+                                    case "Create":
+                                                <span class="badge badge-success float-right">@item.Type</span>
+                                        break;
+                                    case "Delete":
+                                                <span class="badge badge-danger float-right">@item.Type</span>
+                                        break;
+                                    case "Edit":
+                                                <span class="badge badge-warning float-right">@item.Type</span>
+                                        break;
+                                    case "Upload":
+                                                <span class="badge bg-purple float-right">@item.Type</span>
+                                        break;
+                                    case "Download":
+                                                <span class="badge bg-purple float-right">@item.Type</span>
+                                        break;
+                                }
+                            }
+                        </td>
+                        <td style=" vertical-align:middle">
+                            @Html.DisplayFor(modelItem => item.Hanhdong)
+                        </td>
+                        <td style=" vertical-align:middle;text-align:center">
+                            @Html.DisplayFor(modelItem => item.Thoigian)
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#banglichsu").DataTable({
+            language: {
+                processing: "Đang tải dữ liệu...",
+                search: "Tìm kiếm",
+                lengthMenu: "Điều chỉnh số lượng bản ghi trên 1 trang _MENU_ ",
+                info: "Bản ghi từ _START_ đến _END_ - Tổng số _TOTAL_ bản ghi",
+                infoEmpty: "Không có dữ liệu",
+                infoFiltered: "(Trong tổng số _MAX_ bản ghi)",
+                loadingRecords: "",
+                zeroRecords: "Không tìm thấy bản ghi phù hợp",
+                emptyTable: "Không có dữ liệu",
+                paginate: {
+                    first: "Trang đầu",
+                    previous: "Trang trước",
+                    next: "Trang sau",
+                    last: "Trang cuối"
+                },
+                aria: {
+                    sortAscending: ": Đang sắp xếp theo column",
+                    sortDescending: ": Đang sắp xếp theo column",
+                }
+            },
+            "responsive": true, "lengthChange": true, "autoWidth": false,
+            "buttons": ["copy", "excel", "print"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

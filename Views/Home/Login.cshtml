@@ -1,0 +1,65 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/adminlte-master/plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/adminlte-master/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/adminlte-master/dist/css/adminlte.min.css">
+    @*<style>
+        .login-page {
+            background-image: url('/polygon.svg');
+            background-size: cover; /* Đảm bảo hình nền bao phủ toàn bộ body */
+            background-repeat: no-repeat; /* Không lặp lại hình nền */
+        }
+    </style>*@
+</head>
+<body class="hold-transition login-page" style="background:#4B4B4B">
+    <div class="login-box">
+        <div class="card bg-gradient-gray">
+            <div class="card-header" style="background:#536A7D">
+                <span class="h4" style="font:revert">
+                    <a style="color:#4BB6D5">V</a>ersion <small>Control Systems</small>
+                </span>
+            </div>
+            <div class="card-body bg-white">
+                <form asp-action="login">               
+                    <div class="input-group mb-3">
+                        <input name="username" type="text" class="form-control" placeholder="Tên tài khoản" autofocus required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user fa-fw"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input name="pwd" type="password" class="form-control" placeholder="Mật khẩu" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-key fa-fw"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" style="background:#28AADE; color:white" class="btn btn-block">Đăng nhập</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="~/adminlte-master/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/adminlte-master/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/adminlte-master/dist/js/adminlte.min.js"></script>
+</body>
+</html>

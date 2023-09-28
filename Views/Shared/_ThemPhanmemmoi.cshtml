@@ -1,0 +1,149 @@
+﻿<style>
+    .bootstrap-datetimepicker-widget.dropdown-menu {
+        z-index: 99;
+        width: auto;
+        font-size: 15px;
+        background-color: lightgrey
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <div id="actions" class="row">
+            <div class="col-lg-8">
+                <div class="btn-group w-100">
+                    <span class="btn btn-sm bg-gradient-success col fileinput-button">
+                        <i class="fas fa-plus fa-fw"></i>
+                        <span>File phần mềm</span>
+                    </span>
+                    <button type="submit" class="btn  btn-sm bg-gradient-primary col start">
+                        <i class="fas fa-upload fa-fw"></i>
+                        <span>Start upload</span>
+                    </button>
+                    <button type="reset" class="btn btn-sm bg-gradient-warning col cancel">
+                        <i class="fas fa-times-circle fa-fw"></i>
+                        <span>Cancel upload</span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-center">
+                <div class="fileupload-process w-100">
+                    <div id="total-progress" class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table table-striped files" id="previews">
+            <div id="template" class="row mt-2">
+                <div class="col-auto">
+                    <span class="preview"><img src="data:," alt="" data-dz-thumbnail /></span>
+                </div>
+                <div class="col d-flex align-items-center">
+                    <p class="mb-0">
+                        <span class="lead" data-dz-name></span>
+                        (<span data-dz-size></span>)
+                    </p>
+                    <strong style="margin-left: 10px" class="error text-danger" data-dz-errormessage></strong>
+                    <strong style="margin-left: 10px" class="success text-success"></strong>
+                </div>
+                <div class="col-4 d-flex align-items-center">
+                    <div class="progress progress-striped active w-100" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-primary start">
+                            <i class="fas fa-upload fa-fw"></i>
+                            <span>Start</span>
+                        </button>
+                        <button data-dz-remove class="btn btn-sm btn-warning cancel">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                            <span>Cancel</span>
+                        </button>
+                        <button data-dz-remove class="btn btn-sm btn-danger delete">
+                            <i class="fas fa-trash fa-fw"></i>
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <form id="Themphanmemmoi">
+            <div class="col-12">
+                <div class="row">
+                    <div class="form-group col-8">
+                        <label style="font-size:smaller">Tên phần mềm</label>
+                        <input name="Name" type="text" class="form-control" placeholder="Nhập tên phần mềm..." required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Version</label>
+                        <input name="Version" type="text" class="form-control" placeholder="Nhập số phiên bản..." required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Model</label>
+                        <select id="chonModel" name="ModelId" class="form-control">
+                            <option value=0>Chọn Model...</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Công đoạn</label>
+                        <input name="CongDoan" type="text" class="form-control" placeholder="Nhập tên công đoạn..." required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Trạng thái</label>
+                        <select name="TrangThaiApDung" class="form-control">
+                            <option value="false">Không áp dụng</option>
+                            <option value="true">Đang áp dụng</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-12">
+                        <label style="font-size:smaller">Điểm thay đổi</label>
+                        <textarea name="DiemThayDoi" type="text" class="form-control" placeholder="Nhập điểm thay đổi của phiên bản (Nếu có)..."></textarea>
+                    </div>
+                    <div class="form-group col-6">
+                        <label style="font-size:smaller">Ngày áp dụng</label>
+                        <div class="input-group date" id="NgayApDung" data-target-input="nearest">
+                            <input type="text" name="NgayApDung" class="form-control datetimepicker-input" data-target="#NgayApDung" placeholder="Chọn ngày áp dụng..." required>
+                            <div class="input-group-append" data-target="#NgayApDung" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-6">
+                        <label style="font-size:smaller">Ngày cài đặt</label>
+                        <div class="input-group date" id="NgayCaiDat" data-target-input="nearest">
+                            <input type="text" name="NgayCaiDat" class="form-control datetimepicker-input" data-target="#NgayCaiDat" placeholder="Chọn ngày cài đặt..." required>
+                            <div class="input-group-append" data-target="#NgayCaiDat" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Người cài đặt</label>
+                        <input name="NguoiCaiDat" type="text" class="form-control">
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Số lượng Jig cài đặt</label>
+                        <input name="SoLuongJigCaiDat" type="number" class="form-control" value="0" placeholder="Nhập số lượng Jig đã cài đặt..." required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label style="font-size:smaller">Người xác nhận</label>
+                        <input name="NguoiXacNhan" type="text" class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <input value="Huỷ bỏ" class="btn btn-danger btn-block" />
+                    </div>
+                    <div class="col-6">
+                        <input type="submit" value="Xác nhận" class="btn btn-success btn-block" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,390 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var hoten = HttpContextAccessor.HttpContext.Session.GetString("username");
+    var role = HttpContextAccessor.HttpContext.Session.GetString("userrole");
+}
+
+@model List<Quanlyversion.Models.Model>
+<style>
+    .table td, .table th {
+        padding: 0.75rem;
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+</style>
+<div class="card  card-secondary">
+    <div class="card-header" >
+        <h3 class="card-title">
+            <i class="fa fa-th fa-fw" aria-hidden="true"></i>
+            Danh sách dữ liệu
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover">
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    if (item.ChildrenModel.Count == 0)
+                    {
+                        <tr data-item-id="@item.Id">
+                            <td style="font-weight: 600;" class="border-0">
+                                <i style="color:red" class="fa fa-question-circle" aria-hidden="true"></i>
+                                Model @item.Name
+                            </td>
+                            <td class="border-0" style="text-align:end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-cog fa-fw"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item edit" href="#"><i class="fas fa-pen fa-fw"> </i> Chỉnh sửa</a>
+                                        <a class="dropdown-item delete" href="#"><i class="fas fa-trash fa-fw"> </i> Xoá</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    if (item.ChildrenModel.Count > 0)
+                    {
+                        <tr data-widget="expandable-table" aria-expanded="false" data-item-id="@item.Id">
+                            <td style="font-weight: 600;">
+                                <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
+                                <i style="color:orange" class="fas fa-folder-open fa-fw"></i>
+                                Model @item.Name
+                            </td>
+                            <td class="border-0" style="text-align:end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-cog fa-fw"></i>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item edit" href="#"><i class="fas fa-pen fa-fw"> </i> Chỉnh sửa</a>
+                                        <a class="dropdown-item delete" href="#"><i class="fas fa-trash fa-fw"> </i> Xoá</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="expandable-body d-none">
+                            <td class="w-100">
+                                <div class="p-0" style="display: none;">
+                                    <table class="table table-hover">
+                                        <tbody>
+                                            @foreach (var chilModel in item.ChildrenModel)
+                                            {
+                                                <tr data-item-id="@chilModel.Id">
+                                                    <td style="font-weight: 500;" class="border-0">
+                                                        <i class="fa fa-caret-right fa-fw"></i>
+                                                        @chilModel.Name
+                                                        @*<span class="badge bg-info shadow" style="vertical-align:super;font-size:x-small">
+                                            @(chilModel.Softwares != null ? chilModel.Softwares.Count().ToString() : "0")
+                                            </span>*@
+                                                    </td>
+                                                    <td class="border-0" style="text-align:end">
+                                                        <div class="btn-group">
+                                                            <button class="btn btn-sm btn-secondary xemDanhSachPhanMem" type="button" data-model-name="@chilModel.Name">
+                                                                <i style="color:orange" class="fa fa-folder-open fa-fw" aria-hidden="true"></i>
+                                                                Danh sách phần mềm
+                                                            </button>
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-sm btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fas fa-cog fa-fw"> </i>
+                                                                </button>
+                                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                                    <a class="dropdown-item edit" href="#"><i class="fas fa-pen fa-fw"> </i> Chỉnh sửa</a>
+                                                                    <a class="dropdown-item delete" href="#"><i class="fas fa-trash fa-fw"> </i> Xoá</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<br />
+
+<div class="modal fade" id="modalDanhsachphanmem" style="padding-right:0px">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div id="modelInfo_Danhsachphanmem">
+                <div class="overlay">
+                    <i class="fas fa-2x fa-sync fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $("#example1").DataTable({
+                "pageLength": 5,
+
+                "responsive": true, "lengthChange": false, "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "pageLength": 5,
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+            });
+        });
+        //Get pwd
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data); // Trả về giá trị thành công
+                        } else {
+                            reject(response.message); // Trả về thông báo lỗi
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        //Edit Model:
+        $('.dropdown-item.edit').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Get the value of the clicked row
+            var itemId = $(this).closest('tr').data('item-id');
+            var clickedRowValue = $(this).closest('tr').find('td:first').text().trim();
+            console.log(itemId);
+            //Swal
+            getPassword('edit').then(function (password) {
+                console.log("Mật khẩu: " + password);
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: true
+                })
+                swalWithBootstrapButtons.fire({
+                    title: 'Nhập mật khẩu để tiếp tục',
+                    input: 'password',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Huỷ bỏ',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var matkhau = result.value;
+                        if (matkhau == password) {
+                            console.log("dang lay du lieu model")
+                            $.ajax({
+                                url: "/Home/GetInfoModel",
+                                type: "GET",
+                                data: { id: itemId },
+                                success: function (data) {
+                                    $('#modal-edit').modal('show');
+                                    $("#modelInfo_Edit").html(data);
+                                },
+                                error: function (xhr, t, error) {
+                                    swalWithBootstrapButtons.fire(
+                                        'Không lấy được dữ liệu',
+                                        'Thao tác đã được huỷ bỏ!',
+                                        'error'
+                                    )
+                                }
+                            });
+                        } else {
+                            swalWithBootstrapButtons.fire(
+                                'Sai mật khẩu',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Đã huỷ',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                })
+            })
+        });
+        //Delete Model:
+        $('.dropdown-item.delete').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if ("@role" != "admin") {
+                Swal.fire(
+                    'Không có quyền truy cập!',
+                    'Tài khoản Admin mới được sử dụng chức năng này',
+                    'error'
+                )
+            }
+            else {
+                // Get the value of the clicked row
+                var itemId = $(this).closest('tr').data('item-id');
+                var clickedRowValue = $(this).closest('tr').find('td:first').text().trim();
+                console.log(itemId);
+                getPassword('edit').then(function (password) {
+                    console.log("Mật khẩu: " + password);
+                    const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-danger'
+                        },
+                        buttonsStyling: true
+                    })
+                    swalWithBootstrapButtons.fire({
+                        title: 'Nhập mật khẩu để tiếp tục',
+                        input: 'password',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Huỷ bỏ',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var matkhau = result.value;
+                            if (matkhau == password) {
+                                const swalWithBootstrapButtons = Swal.mixin({
+                                    customClass: {
+                                        confirmButton: 'btn btn-danger',
+                                        cancelButton: 'btn btn-success'
+                                    },
+                                    buttonsStyling: true
+                                })
+                                swalWithBootstrapButtons.fire({
+                                    title: 'Xoá Model ' + clickedRowValue + ' ?',
+                                    text: 'Tất cả các Model thuộc Model ' + clickedRowValue + ' sẽ bị xoá',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Xác nhận xoá',
+                                    cancelButtonText: 'Huỷ bỏ',
+                                    reverseButtons: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: "/Home/DeleteModel",
+                                            type: 'DELETE',
+                                            data: { id: itemId },
+                                            success: function (data) {
+                                                if (!data.success) {
+                                                    console.log("Lỗi xảy ra: " + data.message);
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Oops...',
+                                                        text: data.message,
+                                                    })
+                                                }
+                                                else {
+                                                    Swal.fire(
+                                                        'Thành công',
+                                                        'Bạn vừa xoá ' + clickedRowValue + ' thành công',
+                                                        'success'
+                                                    ).then(function () {
+                                                        window.location.reload();
+                                                    });
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Oops...',
+                                                    text: error,
+                                                })
+                                            }
+                                        });
+                                    } else if (
+                                        result.dismiss === Swal.DismissReason.cancel
+                                    ) {
+                                        swalWithBootstrapButtons.fire(
+                                            'Đã huỷ',
+                                            'Thao tác đã được huỷ bỏ!',
+                                            'error'
+                                        )
+                                    }
+                                })
+                            } else {
+                                swalWithBootstrapButtons.fire(
+                                    'Sai mật khẩu',
+                                    'Thao tác đã được huỷ bỏ!',
+                                    'error'
+                                )
+                            }
+                        } else if (
+                            result.dismiss === Swal.DismissReason.cancel
+                        ) {
+                            swalWithBootstrapButtons.fire(
+                                'Đã huỷ',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    })
+                })
+            }
+        });
+        //Xem danh sách phần mềm
+        $('.xemDanhSachPhanMem').on('click', function (e) {
+            var modelName = $(this).data('model-name');
+            var itemId = $(this).closest('tr').data('item-id');
+            var clickedRowValue = $(this).closest('tr').find('td:first').text().trim();
+            $.ajax({
+                url: "/Home/GetDanhsachphanmem",
+                type: "GET",
+                data: { modelId: itemId },
+                success: function (data) {
+                    $("#modelInfo_Danhsachphanmem").html(data);
+                    $('#modalDanhsachphanmem').find('.modal-title-content').text('Danh sách phần mềm tại Model ' + modelName);
+                    $('#modalDanhsachphanmem').modal('show');
+
+                },
+                error: function (xhr, t, error) {
+                    console.log(error)
+                    Swal.fire(
+                        'Không lấy được dữ liệu',
+                        'Thao tác đã được huỷ bỏ!',
+                        'error'
+                    )
+                }
+            });
+        })
+    });
+</script>
+
+
+
+

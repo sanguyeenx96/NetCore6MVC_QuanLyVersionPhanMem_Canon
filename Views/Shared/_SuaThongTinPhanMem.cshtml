@@ -1,0 +1,182 @@
+﻿@model Quanlyversion.Models.Software
+
+<style>
+    .bootstrap-datetimepicker-widget.dropdown-menu {
+        z-index: 99;
+        width: auto;
+        font-size: 15px;
+        background-color: lightgrey
+    }
+</style>
+
+<form id="SuaThongTinPhanMem">
+    <div class="row">
+        <div class="form-group col-12">
+            <label style="font-size:smaller">Tên phần mềm</label>
+            <input name="Name" type="text" class="form-control" required value="@Model.Name">
+        </div>
+        <div class="form-group col-10">
+            <label style="font-size:smaller">Đường dẫn</label>
+            <input name="Path" type="text" class="form-control" required value="@Model.Path" readonly>
+        </div>
+        <div class="form-group col-2">
+            <label style="font-size:smaller">Version</label>
+            <input name="Version" type="text" class="form-control" required value="@Model.Version" >
+        </div>
+        <div class="form-group col-3">
+            <label style="font-size:smaller">Model</label>
+            <select id="thaydoimodel" name="Model" class="form-control" onselect="">
+            </select>
+        </div>
+        <div class="form-group col-3">
+            <label style="font-size:smaller">Công đoạn</label>
+            <input name="CongDoan" type="text" class="form-control" required value="@Model.CongDoan">
+        </div>
+        <div class="form-group col-6">
+            <label style="font-size:smaller">Trạng thái</label>
+            <select name="TrangThaiApDung" class="form-control">
+                @if (Model.TrangThaiApDung == true)
+                {
+                    <option value="false">Không áp dụng</option>
+                    <option value="true" selected>Đang áp dụng</option>
+                }
+                else
+                {
+                    <option value="false" selected>Không áp dụng</option>
+                    <option value="true">Đang áp dụng</option>
+                }
+            </select>
+        </div>
+        <div class="form-group col-12">
+            <label style="font-size:smaller">Điểm thay đổi</label>
+            <textarea name="DiemThayDoi" type="text" class="form-control" value="@Model.DiemThayDoi"></textarea>
+        </div>
+        <div class="form-group col-6">
+            <label style="font-size:smaller">Ngày áp dụng</label>
+            <div class="input-group date" id="NgayApDung" data-target-input="nearest">
+                <input type="text" name="NgayApDung" class="form-control datetimepicker-input" data-target="#NgayApDung" required value="@Model.NgayApDung">
+                <div class="input-group-append" data-target="#NgayApDung" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-6">
+            <label style="font-size:smaller">Ngày cài đặt</label>
+            <div class="input-group date" id="NgayCaiDat" data-target-input="nearest">
+                <input type="text" name="NgayCaiDat" class="form-control datetimepicker-input" data-target="#NgayCaiDat" required value="@Model.NgayCaiDat">
+                <div class="input-group-append" data-target="#NgayCaiDat" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-4">
+            <label style="font-size:smaller">Người cài đặt</label>
+            <input name="NguoiCaiDat" type="text" class="form-control" value="@Model.NguoiCaiDat" required >
+        </div>
+        <div class="form-group col-4">
+            <label style="font-size:smaller">Số lượng Jig cài đặt</label>
+            <input name="SoLuongJigCaiDat" type="number" class="form-control" value="0" required value="@Model.SoLuongJigCaiDat">
+        </div>
+        <div class="form-group col-4">
+            <label style="font-size:smaller">Người xác nhận</label>
+            <input name="NguoiXacNhan" type="text" class="form-control" value="@Model.NguoiXacNhan" required>
+        </div>
+        <div class="col-6">
+            <input value="Huỷ bỏ" class="btn btn-danger btn-block btnHuybo" />
+        </div>
+        <div class="col-6">
+            <input type="submit" value="Xác nhận" class="btn btn-success btn-block" />
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+
+        $(".btnHuybo").click(function(){
+            $("#modalSuathongtinphanmem").modal("hide");
+        })
+
+        $.ajax({
+            url: "/Home/GetSelectListChildrenModels",
+            method: "GET",
+            success: function (data) {
+                const models = data;
+                const selectElement = document.getElementById("thaydoimodel");
+                while (selectElement.firstChild) {
+                    selectElement.removeChild(selectElement.firstChild);
+                }
+                models.forEach((model) => {
+                    const option = document.createElement("option");
+                    option.value = model.id;
+                    option.text = model.name;
+                    selectElement.appendChild(option);
+                });
+                selectElement.value = @Model.ModelId;
+            },
+            error: function (xhr, status, error) {
+                Swal.fire(
+                    'Không tải được dữ liệu Model',
+                    error,
+                    'error'
+                )
+            }
+        });
+        $('#NgayApDung').datetimepicker({
+            format: 'yyyy/MM/DD'
+        });
+        $('#NgayCaiDat').datetimepicker({
+            format: 'yyyy/MM/DD'
+        });
+        $("#SuaThongTinPhanMem").submit(function (e) {
+            e.preventDefault();
+            var intId = @Model.Id;
+            var txttenmodel = "@Model.Model.Name.ToString()";
+            var txtTenphanmem = $("input[name='Name']").val();
+            var txtVersion = $("input[name='Version']").val();
+            var txtModelId = $("select[name='Model']").val();
+            var txtCongdoan = $("input[name='CongDoan']").val();
+            var txtTrangthaiapdung = $("select[name='TrangThaiApDung']").val();
+            var txtDiemthaydoi = $("textarea[name='DiemThayDoi']").val();
+            var txtNgayapdung = $("input[name='NgayApDung']").val();
+            var txtNgaycaidat = $("input[name='NgayCaiDat']").val();
+            var txtNguoicaidat = $("input[name='NguoiCaiDat']").val();
+            var txtSoluongjigcaidat = $("input[name='SoLuongJigCaiDat']").val();
+            var txtNguoixacnhan = $("input[name='NguoiXacNhan']").val();
+            $.ajax({
+                url: "/Home/UpdateInfoSoft", 
+                method: "POST",
+                data: {
+                    id: intId,
+                    tenmodelhientai: txttenmodel,
+                    tenphanmem:txtTenphanmem,
+                    version:txtVersion,
+                    modelid:txtModelId,
+                    congdoan:txtCongdoan,
+                    trangthaiapdung:txtTrangthaiapdung,
+                    diemthaydoi:txtDiemthaydoi,
+                    ngayapdung:txtNgayapdung,
+                    ngaycaidat:txtNgaycaidat,
+                    nguoicaidat:txtNguoicaidat,
+                    soluongjigcaidat:txtSoluongjigcaidat,
+                    nguoixacnhan: txtNguoixacnhan
+                },
+                success: function (response) {
+                    console.log(response.data)
+                    Swal.fire(
+                        'Thành công',
+                        'Bạn vừa sửa thông tin phần mềm thành công',
+                        'success'
+                    ).then(function () {
+                        window.location.reload();
+                    });
+                },                
+                error: function (xhr, t, error) {
+                    alert("Error: " + error);
+                }
+            });
+        });
+    })
+</script>
+
+

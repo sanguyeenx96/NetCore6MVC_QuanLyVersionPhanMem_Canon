@@ -1,0 +1,177 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var hoten = HttpContextAccessor.HttpContext.Session.GetString("username");
+    var role = HttpContextAccessor.HttpContext.Session.GetString("userrole");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @*    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    *@    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="~/adminlte-master/plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/adminlte-master/dist/css/adminlte.min.css">
+    <!-- jQuery -->
+    <script src="~/adminlte-master/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/adminlte-master/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/adminlte-master/dist/js/adminlte.min.js"></script>
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/adminlte-master/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/adminlte-master/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/adminlte-master/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- DataTables  & Plugins -->
+    <script src="~/adminlte-master/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/adminlte-master/plugins/jszip/jszip.min.js"></script>
+    <script src="~/adminlte-master/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/adminlte-master/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/adminlte-master/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- Dropzone -->
+    <link rel="stylesheet" href="~/adminlte-master/plugins/dropzone/min/dropzone.min.css">
+    <script src="~/adminlte-master/plugins/dropzone/min/dropzone.min.js"></script>
+    <!-- InputMask -->
+    <script src="~/adminlte-master/plugins/moment/moment.min.js"></script>
+    <link rel="stylesheet" href="~/adminlte-master/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <script src="~/adminlte-master/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <style>
+        body.modal-open {
+            overflow: auto !important;
+        }
+
+            body.modal-open > .modal-backdrop {
+                transition: 0.1s opacity;
+                opacity: 0.7; /* Điều chỉnh độ mờ tùy ý */
+            }
+
+            body.modal-open[style] {
+                padding-right: 0px !important;
+            }
+    </style>
+    <style>
+
+        .body2 {
+            background-image: url('/rm380-16.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Giữ hình nền cố định khi cuộn trang */
+        }
+    </style>
+</head>
+<body class="hold-transition layout-top-nav layout-navbar-fixed " style="background:white">
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand-lg navbar-light navbar-white" style="background:#F5F5F5">
+            <div class="container">
+                <a class="navbar-brand">
+                    <img src="~/layers2.png" alt="AdminLTE Logo" class="brand-image" style="opacity:0.9">
+                </a>
+                @* <form class="form-inline ml-0 ml-md-3">
+                <div class="input-group input-group-sm">
+                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                <button class="btn btn-navbar" type="submit">
+                <i class="fas fa-search"></i>
+                </button>
+                </div>
+                </div>
+                </form>*@
+                <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a id="3" asp-action="settings" asp-controller="home" class="nav-link">Danh sách phần mềm</a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="2" asp-action="lichsu" asp-controller="lichsu" class="nav-link">Lịch sử</a>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
+                    <li class="nav-item dropdown">
+                        @if (role == "user")
+                        {
+                            <button class="btn btn-secondary" data-toggle="dropdown" href="#">
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i>
+                                @hoten.ToString()
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <span class="dropdown-header">
+                                            Tài khoản người dùng
+                                        </span>
+                                <div class="dropdown-divider"></div>
+                                <a asp-action="login" class="dropdown-item" style="text-align:center">
+                                    <i class="fa fa-power-off" aria-hidden="true"></i>
+                                    Đăng xuất
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning" data-toggle="dropdown" href="#">
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i>
+                                @hoten.ToString()
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                                <span class="dropdown-header">
+                                        Tài khoản quản trị
+                                </span>
+                                <div class="dropdown-divider"></div>
+                                <a asp-action="login" class="dropdown-item" style="text-align:center">
+                                    <i class="fa fa-power-off" aria-hidden="true"></i>
+                                    Đăng xuất
+                                </a>
+                            </div>
+                        }
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="content-wrapper body2">
+            <div class="content-header">
+                <div class="container">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0"><small>@ViewBag.currentPage</small></h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a asp-action="index">@ViewBag.parentPage</a></li>
+                                <li class="breadcrumb-item active">@ViewBag.currentPage</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="container">
+                    @RenderBody()
+                    <br />
+                </div>
+            </div>
+        </div>
+        <footer class="main-footer" style="text-align:center; font-size:small;background:#F5F5F5">
+            <a href="#">Canon Electronics VietNam</a>
+        </footer>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+    @if (ViewData["Active"] != null)
+    {
+        <script type="text/javascript">document.getElementById("@ViewData["Active"]").classList.add("active")</script>
+    }
+</body>
+</html>

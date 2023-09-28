@@ -1,0 +1,808 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var hoten = HttpContextAccessor.HttpContext.Session.GetString("username");
+    var role = HttpContextAccessor.HttpContext.Session.GetString("userrole");
+}
+@model List<Quanlyversion.Models.Lichsu>
+@{
+    ViewData["Active"] = "3";
+    ViewData["Title"] = "Danh sách phần mềm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string demModel = ViewBag.countModel;
+    string demSoft = ViewBag.countSoft;
+    string demUser = ViewBag.countUser;
+}
+
+
+@*Nút chức năng*@
+<div>
+    <a class="btn btn-app bg-gradient-success " id="modalCreateNewModel" style="margin-left:0px">
+        <span class="badge bg-danger">@demModel</span>
+        <i class="fas fa-plus"></i> Model
+    </a>
+    <a class="btn btn-app bg-gradient-purple" id="btnCreateNewSoftware">
+        <span class="badge bg-danger">@demSoft </span>
+        <i class="fas fa-plus"></i> Phần mềm
+    </a>
+    <a class="btn btn-app bg-gradient-warning" id="btnQuanlytaikhoan">
+        <span class="badge bg-danger">@demUser</span>
+        <i class="fas fa-users"></i> Tài khoản
+    </a>
+    <a class="btn btn-app bg-gradient-info" id="btnMatkhau">
+        <i class="fas fa-lock"></i> Mật khẩu
+    </a>
+</div>
+
+
+<div class="row" style="margin-top:10px">
+    @*Danh sách Model và phần mềm*@
+    <div id="modelList" class="col-lg-8">
+        <div class="d-flex justify-content-center" style="margin-top:100px">
+            <div class="spinner-border text-primary" style="width: 5rem; height: 5rem;" role="status">
+            </div>
+        </div>
+    </div>
+    @*Lịch sử hoạt động gần đây*@
+    <div class="col-lg-4">
+        <div class="card ">
+            <div class="card-header" style="background:#F5F5F5">
+                <h3 class="card-title">
+                    <i class="fa fa-history fa-fw" aria-hidden="true"></i>
+                    Hoạt động gần đây
+                </h3>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body p-0">
+                <ul class="products-list product-list-in-card pl-2 pr-2" style="font-size:small">
+                    @foreach (var item in Model)
+                    {
+                        <li class="item">
+                            <div class="product-img">
+                                <img class="img-circle img-bordered-sm" src="~/user.png" alt="user image">
+                            </div>
+                            <div class="product-info">
+                                <a asp-action="lichsu" asp-controller="lichsu" class="product-title">
+                                    @item.Ten
+                                    @{
+                                        switch (item.Type)
+                                        {
+                                            case "Login":
+                                                        <span class="badge badge-info float-right">@item.Type</span>
+                                                break;
+                                            case "Create":
+                                                        <span class="badge badge-success float-right">@item.Type</span>
+                                                break;
+                                            case "Delete":
+                                                        <span class="badge badge-danger float-right">@item.Type</span>
+                                                break;
+                                            case "Edit":
+                                                        <span class="badge badge-warning float-right">@item.Type</span>
+                                                break;
+                                            case "Upload":
+                                                        <span class="badge bg-purple float-right">@item.Type</span>
+                                                break;
+                                            case "Download":
+                                                        <span class="badge bg-purple float-right">@item.Type</span>
+                                                break;
+                                        }
+                                    }
+                                </a>
+                                <span class="product-description">
+                                    @item.Thoigian
+                                    <br>
+                                    @item.Hanhdong
+                                </span>
+                            </div>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+            <div class="card-footer text-center">
+                <a asp-action="lichsu" asp-controller="lichsu" class="uppercase">Xem tất cả</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Modal Quản lý tài khoản*@
+<div class="modal fade" id="modal-quanlytaikhoan">
+    <div class="modal-dialog  modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-size:medium">
+                    <i class="fas fa-users fa-fw"> </i>
+                    Quản lý tài khoản
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent_Quanlytaikhoan">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Modal chỉnh sửa thông tin Model*@
+<div class="modal fade" id="modal-edit" data-clicked-row-value="" data-item-id="">
+    <div class="modal-dialog  modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fas fa-pen fa-fw"> </i>
+                    Chỉnh sửa thông tin
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modelInfo_Edit">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //Lấy pwd:
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data); // Trả về giá trị thành công
+                        } else {
+                            reject(response.message); // Trả về thông báo lỗi
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        //Tải danh sách Model
+        $.get("/Home/GetParentModels", function (result) {
+            $("#modelList").html(result);
+        });
+        //Thêm Model mới
+        $("#modalCreateNewModel").click(function () {
+            getPassword('edit').then(function (password) {
+                console.log("Mật khẩu: " + password);
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: true
+                })
+                swalWithBootstrapButtons.fire({
+                    title: 'Nhập mật khẩu để tiếp tục',
+                    input: 'password',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Huỷ bỏ',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var matkhau = result.value;
+                        if (matkhau == password) {
+                            $.ajax({
+                                url: "/Home/GetSelectListParentModels",
+                                method: "GET",
+                                success: function (data) {
+                                    // Dữ liệu trả về từ máy chủ chứa danh sách các model
+                                    const models = data;
+                                    // Chuyển đổi danh sách model thành đối tượng inputOptions
+                                    const inputOptions = {};
+                                    inputOptions['-1'] = 'Đây là Model tổng';
+                                    models.forEach((model) => {
+                                        inputOptions[model.id] = model.name; // Sử dụng id của model làm key và name làm giá trị
+                                    });
+                                    //Swal
+                                    const swalWithBootstrapButtons = Swal.mixin({
+                                        customClass: {
+                                            confirmButton: 'btn btn-success',
+                                            cancelButton: 'btn btn-danger'
+                                        },
+                                        buttonsStyling: true
+                                    })
+                                    swalWithBootstrapButtons.fire({
+                                        title: 'Chọn Model tổng',
+                                        input: 'select',
+                                        inputOptions: inputOptions,
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Xác nhận',
+                                        cancelButtonText: 'Huỷ bỏ',
+                                        reverseButtons: true
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            var idModelTong = result.value;
+                                            const swalWithBootstrapButtons = Swal.mixin({
+                                                customClass: {
+                                                    confirmButton: 'btn btn-success',
+                                                    cancelButton: 'btn btn-danger'
+                                                },
+                                                buttonsStyling: true
+                                            })
+                                            swalWithBootstrapButtons.fire({
+                                                title: 'Nhập tên Model mới',
+                                                input: 'text',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonText: 'Xác nhận thêm',
+                                                cancelButtonText: 'Huỷ bỏ',
+                                                reverseButtons: true
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    var modelName = result.value;
+                                                    //AJAX
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: "/Home/CreateModel",
+                                                        data: { name: modelName, modelTong: idModelTong },
+                                                        success: function (data) {
+                                                            if (!data.success) {
+                                                                console.log("Lỗi xảy ra: " + data.message);
+                                                                Swal.fire({
+                                                                    icon: 'error',
+                                                                    title: 'Oops...',
+                                                                    text: data.message,
+                                                                })
+                                                            }
+                                                            else {
+                                                                Swal.fire(
+                                                                    'Thành công',
+                                                                    'Bạn vừa thêm Model ' + modelName + ' thành công',
+                                                                    'success'
+                                                                ).then(function () {
+                                                                    window.location.reload();
+                                                                });
+                                                            }
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            Swal.fire(
+                                                                'Lỗi máy chủ',
+                                                                'Thao tác đã được huỷ bỏ!',
+                                                                'error'
+                                                            )
+                                                        }
+                                                    });
+                                                } else if (
+                                                    result.dismiss === Swal.DismissReason.cancel
+                                                ) {
+                                                    swalWithBootstrapButtons.fire(
+                                                        'Đã huỷ',
+                                                        'Thao tác đã được huỷ bỏ!',
+                                                        'error'
+                                                    )
+                                                }
+                                            })
+                                        } else if (
+                                            result.dismiss === Swal.DismissReason.cancel
+                                        ) {
+                                            swalWithBootstrapButtons.fire(
+                                                'Đã huỷ',
+                                                'Thao tác đã được huỷ bỏ!',
+                                                'error'
+                                            )
+                                        }
+                                    })
+                                },
+                                error: function (xhr, status, error) {
+                                    Swal.fire(
+                                        'Lỗi máy chủ',
+                                        'Thao tác đã được huỷ bỏ!',
+                                        'error'
+                                    )
+                                }
+                            });
+                        } else {
+                            swalWithBootstrapButtons.fire(
+                                'Sai mật khẩu',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Đã huỷ',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                })
+            })
+        });
+
+        $("#btnQuanlytaikhoan").click(function (e) {
+            if ("@role" != "admin") {
+                Swal.fire(
+                    'Không có quyền truy cập!',
+                    'Tài khoản Admin mới được sử dụng chức năng này',
+                    'error'
+                )
+            }
+            else{
+                getPassword('edit').then(function (password) {
+                    console.log("Mật khẩu: " + password);
+                    const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-danger'
+                        },
+                        buttonsStyling: true
+                    })
+                    swalWithBootstrapButtons.fire({
+                        title: 'Nhập mật khẩu để tiếp tục',
+                        input: 'password',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Huỷ bỏ',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var matkhau = result.value;
+                            if (matkhau == password) {
+                                $.ajax({
+                                    url: "/Home/GetDanhsachtaikhoan",
+                                    type: "GET",
+                                    success: function (data) {
+                                        $('#modal-quanlytaikhoan').modal('show');
+                                        $("#modalContent_Quanlytaikhoan").html(data);
+                                    },
+                                    error: function (xhr, t, error) {
+                                        swalWithBootstrapButtons.fire(
+                                            'Không lấy được dữ liệu',
+                                            'Thao tác đã được huỷ bỏ!',
+                                            'error'
+                                        )
+                                    }
+                                });
+                            } else {
+                                swalWithBootstrapButtons.fire(
+                                    'Sai mật khẩu',
+                                    'Thao tác đã được huỷ bỏ!',
+                                    'error'
+                                )
+                            }
+                        } else if (
+                            result.dismiss === Swal.DismissReason.cancel
+                        ) {
+                            swalWithBootstrapButtons.fire(
+                                'Đã huỷ',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    })
+                })
+            }
+        });
+
+        $("#btnMatkhau").click(function (e) {
+            if ("@role" != "admin") {
+                Swal.fire(
+                    'Không có quyền truy cập!',
+                    'Tài khoản Admin mới được sử dụng chức năng này',
+                    'error'
+                )
+            }
+            else{
+                getPassword('edit').then(function (password) {
+                    console.log("Mật khẩu: " + password);
+                    const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-danger'
+                        },
+                        buttonsStyling: true
+                    })
+                    swalWithBootstrapButtons.fire({
+                        title: 'Nhập mật khẩu để tiếp tục',
+                        input: 'password',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: 'Huỷ bỏ',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var matkhau = result.value;
+                            if (matkhau == password) {
+                                Swal.fire({
+                                    title: 'Mật khẩu ứng dụng',
+                                    html: `
+                                                <input type="text" id="password" class="swal2-input" value="${password}">
+                                            `,
+                                    confirmButtonText: 'Đổi mật khẩu',
+                                    focusConfirm: false,
+                                    preConfirm: () => {
+                                        const newpassword = Swal.getPopup().querySelector('#password').value
+                                        if (!newpassword) {
+                                            Swal.showValidationMessage(`Mật khẩu không được để trống!`)
+                                        }
+                                        if (newpassword == password) {
+                                            Swal.showValidationMessage(`Mật khẩu mới không có sự thay đổi!`)
+                                        }
+                                        return { newpassword: newpassword }
+                                    }
+                                }).then((result) => {
+                                    var pwd = result.value.newpassword.trim()
+                                    $.ajax({
+                                        url: "/TaiKhoan/SuamatkhauUngdung",
+                                        type: "POST",
+                                        data: {
+                                            pwd: pwd
+                                        },
+                                        success: function (data) {
+                                            if (data.success) {
+                                                Swal.fire(
+                                                    'Thành công!',
+                                                    'Bạn vừa thay đổi mật khẩu thành công',
+                                                    'success'
+                                                )
+                                            }
+                                            else {
+                                                Swal.fire(
+                                                    'Thất bại!',
+                                                    'Lỗi kết nối',
+                                                    'error'
+                                                )
+                                            }
+                                        },
+                                        error: function (xhr, t, error) {
+                                            Swal.fire(
+                                                'Thất bại!',
+                                                'Lỗi kết nối',
+                                                'error'
+                                            )
+                                        }
+                                    });
+                                })
+                            } else {
+                                swalWithBootstrapButtons.fire(
+                                    'Sai mật khẩu',
+                                    'Thao tác đã được huỷ bỏ!',
+                                    'error'
+                                )
+                            }
+                        } else if (
+                            result.dismiss === Swal.DismissReason.cancel
+                        ) {
+                            swalWithBootstrapButtons.fire(
+                                'Đã huỷ',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    })
+                })
+            }           
+        });
+    });
+</script>
+
+<div class="modal fade" id="modalThemphanmemmoi" data-clicked-row-value="" data-item-id="">
+    <div class="modal-dialog  modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-size:medium">
+                    <i class="fas fa-plus fa-fw"> </i>
+                    Thêm phần mềm mới
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <partial name="_ThemPhanmemmoi" />
+            </div>
+        </div>
+    </div>
+</div>
+@*Phần Scripts thêm phần mềm mới:*@
+<script>
+    var nameFile = "";
+    $(document).ready(function () {
+        //Dropzone và upload phần mềm:
+        Dropzone.autoDiscover = false
+        var previewNode = document.querySelector("#template")
+        previewNode.id = ""
+        var previewTemplate = previewNode.parentNode.innerHTML
+        previewNode.parentNode.removeChild(previewNode)
+        var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
+            url: "/upload", // Set the url
+            maxFiles: 1,
+            maxFilesize: 1000, //500MB
+            parallelUploads: 20,
+            previewTemplate: previewTemplate,
+            autoQueue: false, // Make sure the files aren't queued until manually added
+            previewsContainer: "#previews", // Define the container to display the previews
+            clickable: ".fileinput-button" // Define the element that should be used as click trigger to select files.
+        })
+        myDropzone.on("addedfile", function (file) {
+            file.previewElement.querySelector(".start").onclick = function () { myDropzone.enqueueFile(file) }
+        })
+        myDropzone.on("totaluploadprogress", function (progress) {
+            document.querySelector("#total-progress .progress-bar").style.width = progress + "%"
+        })
+        myDropzone.on("sending", function (file, xhr, data) {
+            document.querySelector("#total-progress").style.opacity = "1"
+            file.previewElement.querySelector(".start").setAttribute("disabled", "disabled")
+            if (file.fullPath) {
+                data.append("fullPath", file.fullPath);
+            }
+        })
+        myDropzone.on("queuecomplete", function (progress) {
+            document.querySelector("#total-progress").style.opacity = "0"
+        })
+        myDropzone.on("success", function (file) {
+            file.previewElement.querySelector(".start").style.display = "none";
+            file.previewElement.querySelector(".cancel").style.display = "none";
+            file.previewElement.querySelector(".delete").style.display = "none";
+            var successElement = file.previewElement.querySelector("strong.success.text-success");
+            successElement.textContent = "Tập tin đã tải lên thành công";
+            nameFile = file.name;
+            console.log(nameFile);
+            console.log(file);
+            Swal.fire(
+                'Thành công',
+                'Tập tin đã được tải lên thành công!',
+                'success'
+            )
+        });
+        myDropzone.on("error", function (file, errorMessage) {
+            Swal.fire(
+                'Thất bại',
+                errorMessage,
+                'error'
+            )
+            file.status = Dropzone.ERROR;
+            file.previewElement.querySelector(".start").style.display = "none";
+            file.previewElement.querySelector(".cancel").style.display = "none";
+            file.previewElement.querySelector(".delete").style.display = "none";
+            file.previewElement.querySelector(".progress-bar").style.display = "none";
+        });
+        document.querySelector("#actions .start").onclick = function () {
+            myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED))
+        }
+        document.querySelector("#actions .cancel").onclick = function () {
+            myDropzone.removeAllFiles(true)
+        }
+        //Datetimepicker + Mask:
+        $('#NgayApDung').datetimepicker({
+            format: 'yyyy/MM/DD'
+        });
+        $('#NgayCaiDat').datetimepicker({
+            format: 'yyyy/MM/DD'
+        });
+        //Lấy pwd:
+        function getPassword(type) {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    type: "GET",
+                    url: "/Home/GetPwd",
+                    data: { type: type },
+                    success: function (response) {
+                        if (response.success) {
+                            resolve(response.data); // Trả về giá trị thành công
+                        } else {
+                            reject(response.message); // Trả về thông báo lỗi
+                        }
+                    },
+                    error: function () {
+                        reject("Đã xảy ra lỗi khi gọi API.");
+                    }
+                });
+            });
+        }
+        //Mở form Thêm phần mềm mới:
+        $("#btnCreateNewSoftware").click(function () {
+            getPassword('edit').then(function (password) {
+                console.log("Mật khẩu: " + password);
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: true
+                })
+                swalWithBootstrapButtons.fire({
+                    title: 'Nhập mật khẩu để tiếp tục',
+                    input: 'password',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xác nhận',
+                    cancelButtonText: 'Huỷ bỏ',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var matkhau = result.value;
+                        if (matkhau == password) {
+                            $.ajax({
+                                url: "/Home/GetSelectListChildrenModels",
+                                method: "GET",
+                                success: function (data) {
+                                    const models = data;
+                                    const selectElement = document.getElementById("chonModel");
+                                    while (selectElement.firstChild) {
+                                        selectElement.removeChild(selectElement.firstChild);
+                                    }
+                                    models.forEach((model) => {
+                                        const option = document.createElement("option");
+                                        option.value = model.id;
+                                        option.text = model.name;
+                                        selectElement.appendChild(option);
+                                    });
+                                    $('#modalThemphanmemmoi').modal('show');
+                                },
+                                error: function (xhr, status, error) {
+                                    Swal.fire(
+                                        'Không tải được dữ liệu Model',
+                                        error,
+                                        'error'
+                                    )
+                                }
+                            });
+                        } else {
+                            swalWithBootstrapButtons.fire(
+                                'Sai mật khẩu',
+                                'Thao tác đã được huỷ bỏ!',
+                                'error'
+                            )
+                        }
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Đã huỷ',
+                            'Thao tác đã được huỷ bỏ!',
+                            'error'
+                        )
+                    }
+                })
+            })
+        });
+        //Submit form Thêm phần mềm mới:
+        $("#Themphanmemmoi").submit(function (e) {
+            e.preventDefault();
+            var modelName = $("select[name='ModelId']").val();
+            var txtmodelName = $("select[name='ModelId'] option:selected").text().trim();
+            if (myDropzone.files.length === 0) {
+                Swal.fire(
+                    'Lỗi',
+                    'File phần mềm chưa được tải lên',
+                    'error'
+                );
+                return;
+            }
+            if (modelName == 0) {
+                Swal.fire(
+                    'Lỗi',
+                    'Bạn chưa chọn Model',
+                    'error'
+                );
+                return;
+            }
+            $.ajax({
+                url: "/Home/CreateFolder",
+                method: "POST",
+                data: {
+                    folderPath: txtmodelName
+                },
+                success: function (response) {
+                    var txtmodelName = $("select[name='ModelId'] option:selected").text().trim();
+                    var txtName = $("input[name='Name']").val();
+                    var txtVersion = $("input[name='Version']").val();
+                    var txtModelId = $("select[name='ModelId']").val();
+                    var txtCongDoan = $("input[name='CongDoan']").val();
+                    var txtTrangThaiApDung = $("select[name='TrangThaiApDung']").val();
+                    var txtDiemThayDoi = $("textarea[name='DiemThayDoi']").val();
+                    var txtNgayApDung = $("input[name='NgayApDung']").val();
+                    var txtNgayCaiDat = $("input[name='NgayCaiDat']").val();
+                    var txtNguoiCaiDat = $("input[name='NguoiCaiDat']").val();
+                    var txtSoLuongJigCaiDat = $("input[name='SoLuongJigCaiDat']").val();
+                    var txtNguoiXacNhan = $("input[name='NguoiXacNhan']").val();
+                    var fileName = txtVersion + "_" + nameFile;
+                    var filePath = 'uploads' + '\\' + txtmodelName + '\\' + fileName;
+                    $.ajax({
+                        url: "/Home/CutAndPasteFile",
+                        method: "POST",
+                        data: {
+                            modelName: txtmodelName,
+                            fileName: nameFile,
+                            version: txtVersion
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                var formData = {
+                                    Name: txtName,
+                                    Version: txtVersion,
+                                    ModelId: txtModelId,
+                                    CongDoan: txtCongDoan,
+                                    TrangThaiApDung: txtTrangThaiApDung,
+                                    DiemThayDoi: txtDiemThayDoi,
+                                    NgayApDung: txtNgayApDung,
+                                    NgayCaiDat: txtNgayCaiDat,
+                                    NguoiCaiDat: txtNguoiCaiDat,
+                                    SoLuongJigCaiDat: txtSoLuongJigCaiDat,
+                                    NguoiXacNhan: txtNguoiXacNhan,
+                                    FileName: fileName,
+                                    Path: filePath
+                                };
+                                console.log(formData);
+                                $.ajax({
+                                    url: "/Home/CreateNewSoft",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify(formData),
+                                    success: function (response) {
+                                        console.log(response.data)
+                                        Swal.fire(
+                                            'Thành công',
+                                            'Bạn vừa thêm phần mềm mới thành công',
+                                            'success'
+                                        ).then(function () {
+                                            window.location.reload();
+                                        });
+
+                                    },
+                                    error: function (xhr, status, error) {
+                                        alert("Lỗi khi gửi yêu cầu: " + error);
+                                    }
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Không chuyển được file tới thư mục đích',
+                                    response.message,
+                                    'error'
+                                )
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire(
+                                'Không chuyển được file tới thư mục đích',
+                                error,
+                                'error'
+                            )
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire(
+                        'Không tạo được thư mục mới!',
+                        error,
+                        'error'
+                    );
+                }
+            });
+
+        });
+    });
+</script>
+
