@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Active"] = "1";
+    ViewData["Title"] = "Tìm kiếm phần mềm";
+}
+
+
+
+<style>
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #007bff;
+    }
+</style>
+
+<form id="searchForm">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Chọn Model:</label>
+                        <select id="modelSelect" class="select2 " multiple="multiple" style="width: 100%;" asp-items="ViewBag.sl">
+                            <option selected>Tất cả</option>
+                        </select>
+                    </div>
+                </div>               
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Chọn Station:</label>
+                        <select id="stationSelect" class="select2" multiple="multiple" style="width: 100%;" asp-items="ViewBag.slstation">
+                            <option selected>Tất cả</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Chọn trạng thái:</label>
+                        <select id="trangThaiSelect" class="select2trangthai" multiple="multiple" style="width: 100%">
+                            <option selected>Đang áp dụng</option>
+                            <option>Không áp dụng</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group input-group-lg">
+                    <input id="searchInput" type="search" class="form-control form-control-lg" placeholder="Nhập tên phần mềm bạn cần tìm tại đây...">
+                    <div class="input-group-append">
+                        <button id="btnSearch" class="btn btn-lg btn-default">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<hr />
+<div id="ketqua">
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('.select2').select2()
+        $('.select2trangthai').select2()
+
+
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const modelSelect = document.getElementById("modelSelect");
+        const stationSelect = document.getElementById("stationSelect");
+        const trangThaiSelect = document.getElementById("trangThaiSelect");
+
+        searchForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const searchTerm = searchInput.value;
+            const selectedModels = Array.from(modelSelect.selectedOptions).map(option => option.value);
+            const selectedStations = Array.from(stationSelect.selectedOptions).map(option => option.value);
+            const selectedTrangThai = Array.from(trangThaiSelect.selectedOptions).map(option => option.value);
+
+            const modelsQueryString = selectedModels.join(',');
+            const stationsQueryString = selectedStations.join(',');
+            const trangThaiQueryString = selectedTrangThai.join(',');
+
+            if (searchTerm == ""){
+                Swal.fire(
+                    '',
+                    'Bạn chưa nhập ký tự để tìm kiếm!',
+                    'warning'
+                )
+            }else{
+                $.ajax({
+                    url: `/Search/SearchSoftware?searchTerm=${searchTerm}&models=${modelsQueryString}&stations=${stationsQueryString}&trangThai=${trangThaiQueryString}`,
+                    method: "GET",
+                    success: function (data) {
+                        $("#ketqua").html(data);
+                        console.log(data)
+                    }
+                });
+            }
+        });      
+    })
+</script>

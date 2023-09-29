@@ -24,6 +24,7 @@ namespace Quanlyversion.Controllers
             _context = context;
         }
 
+       
         public async Task<IActionResult> Login(string username, string pwd)
         {
             if (!String.IsNullOrEmpty(username) && !String.IsNullOrEmpty(pwd))
@@ -80,7 +81,7 @@ namespace Quanlyversion.Controllers
         public async Task<IActionResult> Settings()
         {
             ViewBag.parentPage = "Trang chủ";
-            ViewBag.currentPage = "Danh sách phần mềm";
+            ViewBag.currentPage = "Dữ liệu";
             ViewBag.countModel = _context.Models.Count().ToString();
             ViewBag.countSoft = _context.Softwares.Count().ToString();
             ViewBag.countUser = _context.Passwords.Count().ToString();
@@ -202,7 +203,7 @@ namespace Quanlyversion.Controllers
         public async Task<IActionResult> GetThongtinmodel(int id)
         {
             var getAll = (from c in _context.Models select c).Include(c => c.ParentModel).Include(c => c.ChildrenModel);
-            var thongtin = await getAll.Where(c => c.Id == id).ToListAsync();
+            var thongtin = await getAll.Where(c => c.Id == id).ToListAsync(); 
             if (thongtin == null)
             {
                 return Json(new { success = false, message = "Không tìm thấy dữ liệu." });

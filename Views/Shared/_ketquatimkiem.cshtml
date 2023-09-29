@@ -1,0 +1,169 @@
+﻿@model IEnumerable<Quanlyversion.Models.Software>
+
+<style>
+    table.table-bordered.dataTable tbody th, table.table-bordered.dataTable tbody td {
+        border-bottom-width: 0;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .badge {
+        display: inline-block;
+        vertical-align: middle;
+        text-align: center;
+        width: 100%; /* Đảm bảo badge chiếm toàn bộ chiều rộng của ô */
+    }
+
+    .table td, .table th {
+        padding: 0.75rem;
+        vertical-align: baseline;
+        border-top: 1px solid #dee2e6;
+    }
+</style>
+<div class=" card card-secondary">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fa fa-search fa-fw" aria-hidden="true"></i>
+            Kết quả tìm kiếm
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="kq" class="table table-hover ">
+            <thead>
+                <tr style="font-size:small;text-align:center">
+                    <th class="col-1">
+                        Trạng thái
+                    </th>
+                    <th>
+                        Tên phần mềm
+                    </th>
+                    <th>
+                        Model
+                    </th>
+                    <th>
+                        Version
+                    </th>
+
+                    <th class="col-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr style="text-align:center">
+                        <td>
+                            @{
+                                if (item.TrangThaiApDung == true)
+                                {
+                                    <span class="badge badge-success">Đang áp dụng</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Không áp dụng</span>
+                                }
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Model.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Version)
+                        </td>
+
+                        <td>
+                            <div class="btn-group btn-block">
+                                <button class="btn btn-sm bg-purple btnDownload" style="font-size:small">
+                                    <i class="fa fa-download fa-fw"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-info " style="font-size:small">
+                                    <i class="fa fa-info fa-fw"></i>
+                                </button>
+                                <button type="button" class="btn btn-warning btnBaoloi" style="font-size:small">
+                                    <i class="fa fa-exclamation-triangle fa-fw"></i>
+                                </button>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $(".btnDownload").click(function () {
+            Swal.fire({
+                title: 'Right sidebar 👋',
+                html: Swal.version,
+                position: 'top-end',
+                showClass: {
+                    popup: `
+                      animate__animated
+                      animate__fadeInRight
+                      animate__faster
+                    `
+                },
+                hideClass: {
+                    popup: `
+                      animate__animated
+                      animate__fadeOutRight
+                      animate__faster
+                    `
+                },
+                grow: 'column',
+                width: 300,
+                showConfirmButton: true,
+                showCloseButton: true
+            })
+        })
+        $(".btnBaoloi").click(function () {
+            Swal.fire(
+                'Thành công',
+                'Báo lỗi',
+                'success')
+        })
+        $("#kq").DataTable({
+            "pageLength": 5,
+            "searching": false,
+            language: {
+                processing: "Đang tải dữ liệu...",
+                search: "Tìm kiếm trong kết quả",
+                lengthMenu: "Điều chỉnh số lượng bản ghi trên 1 trang _MENU_ ",
+                info: "<p style='color:green'><i class='fa fa-check fa-fw'></i> Tìm thấy _TOTAL_ kết quả phù hợp</p>",
+                infoEmpty: "<p style='color:red'> <i class='fa fa-ban fa-fw'></i> Không tìm thấy dữ liệu nào phù hợp</p>",
+                infoFiltered: "(Trong tổng số _MAX_ bản ghi)",
+                loadingRecords: "",
+                zeroRecords: "Không có dữ liệu",
+                emptyTable: "Không có dữ liệu",
+                paginate: {
+                    first: "Trang đầu",
+                    previous: "Trang trước",
+                    next: "Trang sau",
+                    last: "Trang cuối"
+                },
+                aria: {
+                    sortAscending: ": Đang sắp xếp theo column",
+                    sortDescending: ": Đang sắp xếp theo column",
+                }
+            },
+            "responsive": true, "lengthChange": false, "autoWidth": false,
+            "buttons": ["copy", "excel", "print"]
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
+</script>

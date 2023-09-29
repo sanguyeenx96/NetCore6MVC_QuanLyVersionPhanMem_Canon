@@ -13,10 +13,8 @@
         width: 100%; /* Đảm bảo badge chiếm toàn bộ chiều rộng của ô */
     }
 </style>
-
-
-<div class="card card-secondary" >
-    <div class="card-header" >
+<div class="card card-secondary">
+    <div class="card-header">
         <h3 class="card-title">
             <i class="fa fa-history fa-fw" aria-hidden="true"></i>
             Hoạt động gần đây
@@ -31,13 +29,13 @@
         </div>
     </div>
     <div class="card-body">
-        <table id="banglichsu" class="table table-bordered table-hover table-responsive-lg" >
+        <table id="banglichsu" class="table table-bordered table-hover table-responsive-md">
             <thead>
                 <tr style="font-size:small;text-align:center">
                     <th class="col-sm-3">
                         Người thao tác
                     </th>
-                    <th>
+                    <th class="col-1">
                         Loại
                     </th>
                     <th>
@@ -51,31 +49,31 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr style="font-size:small">
+                    <tr style="font-size:small">
                         <td style=" vertical-align:middle;text-align:center">
                             @Html.DisplayFor(modelItem => item.Ten)
                         </td>
-                        <td style=" vertical-align:middle;text-align:center" >
+                        <td style=" vertical-align:middle;text-align:center">
                             @{
                                 switch (item.Type)
                                 {
                                     case "Login":
-                                                <span class="badge badge-info float-right">@item.Type</span>
+                                        <span class="badge badge-info float-right">@item.Type</span>
                                         break;
                                     case "Create":
-                                                <span class="badge badge-success float-right">@item.Type</span>
+                                        <span class="badge badge-success float-right">@item.Type</span>
                                         break;
                                     case "Delete":
-                                                <span class="badge badge-danger float-right">@item.Type</span>
+                                        <span class="badge badge-danger float-right">@item.Type</span>
                                         break;
                                     case "Edit":
-                                                <span class="badge badge-warning float-right">@item.Type</span>
+                                        <span class="badge badge-warning float-right">@item.Type</span>
                                         break;
                                     case "Upload":
-                                                <span class="badge bg-purple float-right">@item.Type</span>
+                                        <span class="badge bg-purple float-right">@item.Type</span>
                                         break;
                                     case "Download":
-                                                <span class="badge bg-purple float-right">@item.Type</span>
+                                        <span class="badge bg-purple float-right">@item.Type</span>
                                         break;
                                 }
                             }
@@ -93,16 +91,18 @@
         </table>
     </div>
 </div>
+    </div>
 
 
 <script>
     $(document).ready(function () {
         $("#banglichsu").DataTable({
+            "order": [[3, 'desc']],
             language: {
                 processing: "Đang tải dữ liệu...",
                 search: "Tìm kiếm",
-                lengthMenu: "Điều chỉnh số lượng bản ghi trên 1 trang _MENU_ ",
-                info: "Bản ghi từ _START_ đến _END_ - Tổng số _TOTAL_ bản ghi",
+                lengthMenu: "Số lượng hiển thị trên 1 trang _MENU_ ",
+                info: "Từ _START_ đến _END_ - Tổng số _TOTAL_ bản ghi",
                 infoEmpty: "Không có dữ liệu",
                 infoFiltered: "(Trong tổng số _MAX_ bản ghi)",
                 loadingRecords: "",
